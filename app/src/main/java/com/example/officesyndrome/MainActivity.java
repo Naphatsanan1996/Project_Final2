@@ -1,6 +1,7 @@
 package com.example.officesyndrome;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,7 +13,7 @@ import org.opencv.android.OpenCVLoader;
 public class MainActivity extends AppCompatActivity {
 
     private static String TAG = "MainActivity";
-    private Button btnCamera, btnTime;
+    private Button btnCamera, btnTime,btnCameraCapture;
 
     static {
         if (OpenCVLoader.initDebug()) {
@@ -42,10 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(MainActivity.this, OpenCamera.class);
                 startActivity(intent);
-
             }
         });
-
 
         btnTime.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
     }
 
 }
