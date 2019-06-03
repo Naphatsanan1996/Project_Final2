@@ -42,29 +42,40 @@ import java.io.InputStream;
 public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
     private static final String TAG = "OpenCV";
     private static final Scalar FACE_RECT_COLOR = new Scalar(0, 255, 0, 255);  //rgb color. green.
+    private static Scalar HAND_RECT_COLOR = new Scalar(255, 0, 0, 255);  //rgb color. green.
+
     public static final int JAVA_DETECTOR = 0;
 
     private Mat mRgba;   //Mat is OpenCv class
     private Mat mGray;
     private Mat mFGMask;
 
-    private BackgroundSubtractorMOG2 mBGSub ;
+    private BackgroundSubtractorMOG2 mBGSub;
 
     private Boolean Findface = false;
     private File mCascadeFile;
+    private File mCascadeFile2;
+
     private CascadeClassifier mJavaDetector;
+
+    private CascadeClassifier mJavaDetector2;
 
     private String[] mDetectorName;
     private float mRelativeFaceSize = 0.2f;
     private int mAbsoluteFaceSize = 0;
 
+    private String[] mDetectorNameHand;
+    private float mRelativeHandSize = 0.2f;
+    private int mAbsoluteHandSize = 0;
+
     private CameraBridgeViewBase mOpenCvCameraView;
     double xCenter = -1;
     double yCenter = -1;
 
+    double xCenter2 = -1;
+    double yCenter2 = -1;
+
     private Button BtnStart;
-
-
 
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -79,14 +90,28 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
                         File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
                         mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
                         FileOutputStream os = new FileOutputStream(mCascadeFile);
-
                         byte[] buffer = new byte[4096];
+
                         int bytesRead;  //to hold number of bytes read for each read(byte[]) call
+
                         while ((bytesRead = is.read(buffer)) != -1) {
                             os.write(buffer, 0, bytesRead);  //passing along the buffer byte array as well as how many bytes were read into the array as parameters.
                         }
                         is.close();
                         os.close();
+
+                        InputStream ish = getResources().openRawResource(R.raw.openhand_haar);
+                        File cascadeDir2 = getDir("cascade", Context.MODE_PRIVATE);
+                        mCascadeFile2 = new File(cascadeDir2, "openhand_haar.xml");
+                        FileOutputStream os2 = new FileOutputStream(mCascadeFile2);
+                        byte[] buffer2 = new byte[4096];
+                        int bytesRead2;
+
+                        while ((bytesRead2 = ish.read(buffer2)) != -1) {
+                            os2.write(buffer2, 0, bytesRead2);
+                        }
+                        ish.close();
+                        os2.close();
 
                         mJavaDetector = new CascadeClassifier(mCascadeFile.getAbsolutePath()); //class for object detection
                         if (mJavaDetector.empty()) {
@@ -97,6 +122,14 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
 
                         cascadeDir.delete();
 
+                        mJavaDetector2 = new CascadeClassifier(mCascadeFile2.getAbsolutePath());
+                        if (mJavaDetector2.empty()) {
+                            Log.e(TAG, "Failed to load cascade classifier");
+                            mJavaDetector2 = null;
+                        } else {
+                            Log.i(TAG, "Loaded cascade classifier from " + mCascadeFile2.getAbsolutePath());
+                        }
+                        cascadeDir2.delete();
                     } catch (IOException e) {
                         e.printStackTrace();
                         Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
@@ -115,30 +148,25 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
     };
 
 
-
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
         setContentView(R.layout.activity_open_camera);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.CameraView);
         mOpenCvCameraView.setCvCameraViewListener(this);
 
-        BtnStart = findViewById(R.id.btn_start) ;
-
-        BtnStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-
-
-
+        BtnStart = findViewById(R.id.btn_start);
+        BtnStart.setVisibility(View.GONE);
+//
+//        BtnStart.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//            }
+//        });
     }
 
     @Override
@@ -187,8 +215,7 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
         mRgba = inputFrame.rgba();
         mGray = inputFrame.gray();
 
-        Core.flip(mRgba,mRgba,1);
-
+//        Core.flip(mRgba, mRgba, 1);
 
 
         if (mAbsoluteFaceSize == 0) {
@@ -211,7 +238,7 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
         Rect[] facesArray = faces.toArray();
         for (int i = 0; i < facesArray.length; i++) {
 //            กรอบ4เหลี่ยม
-//            Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
+            Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
             xCenter = (facesArray[i].x + facesArray[i].width + facesArray[i].x) / 2;
             yCenter = (facesArray[i].y + facesArray[i].y + facesArray[i].height) / 2;
             Point center = new Point(xCenter, yCenter);
@@ -219,6 +246,33 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
 
         }
 
+
+        if (mAbsoluteHandSize == 0) {
+            int height2 = mGray.rows();
+            if (Math.round(height2 * mRelativeHandSize) > 0) {
+                mAbsoluteHandSize = Math.round(height2 * mRelativeHandSize);
+            }
+        }
+        MatOfRect hands = new MatOfRect();
+
+        if (mJavaDetector2 != null) {
+            mJavaDetector2.detectMultiScale(mGray, hands, 1.1, 2, 2, new Size(mAbsoluteHandSize, mAbsoluteHandSize), new Size());
+        } else {
+            Log.e(TAG, "Detector is null!");
+        }
+        Rect[] handsArray = hands.toArray();
+        for (int i = 0; i < handsArray.length; i++) {
+            xCenter2 = (handsArray[i].x + handsArray[i].width + handsArray[i].x) / 2;
+            yCenter2 = (handsArray[i].y + handsArray[i].y + handsArray[i].height) / 2;
+            Point center2 = new Point(xCenter2, yCenter2);
+//            Imgproc.rectangle(mRgba,handsArray[i].tl(),handsArray[i].br(),HAND_RECT_COLOR,3);
+            Imgproc.circle(mRgba, center2, 20, FACE_RECT_COLOR, 10);
+            Log.i(TAG, "Center" + center2);
+            if (xCenter2 >= 400 && xCenter2 <= 500) {
+                Imgproc.circle(mRgba, center2, 20, HAND_RECT_COLOR, 10);
+            }
+
+        }
 
 
 // ตำแหน่งคร่าวๆ

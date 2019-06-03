@@ -25,10 +25,12 @@
         android:gravity="center"
         android:layout_centerInParent="true"/>
     <TextView
+        android:id="@+id/text_GoOutFrame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="กรุณาออกจากกล้อง"
+        android:text=""
         android:textSize="20sp"
+        android:textColor="#17202A"
         android:layout_centerInParent="true"/>
 
 

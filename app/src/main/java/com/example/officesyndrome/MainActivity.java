@@ -36,11 +36,9 @@ public class MainActivity extends AppCompatActivity {
     public void Initinstant(){
         btnCamera = (Button) findViewById(R.id.OpenCamera);
         btnTime = (Button) findViewById(R.id.SetTime);
-
         btnCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent intent = new Intent(MainActivity.this, OpenCamera.class);
                 startActivity(intent);
             }
