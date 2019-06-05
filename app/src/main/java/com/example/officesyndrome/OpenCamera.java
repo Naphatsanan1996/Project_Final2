@@ -217,7 +217,7 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
 
 //        Core.flip(mRgba, mRgba, 1);
 
-
+//Face
         if (mAbsoluteFaceSize == 0) {
             int height = mGray.rows();
             if (Math.round(height * mRelativeFaceSize) > 0) {
@@ -245,7 +245,7 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
             Imgproc.circle(mRgba, center, 20, new Scalar(255, 0, 0, 255), 5);
 
         }
-
+//Hands
 
         if (mAbsoluteHandSize == 0) {
             int height2 = mGray.rows();
@@ -265,7 +265,7 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
             xCenter2 = (handsArray[i].x + handsArray[i].width + handsArray[i].x) / 2;
             yCenter2 = (handsArray[i].y + handsArray[i].y + handsArray[i].height) / 2;
             Point center2 = new Point(xCenter2, yCenter2);
-//            Imgproc.rectangle(mRgba,handsArray[i].tl(),handsArray[i].br(),HAND_RECT_COLOR,3);
+            Imgproc.rectangle(mRgba,handsArray[i].tl(),handsArray[i].br(),HAND_RECT_COLOR,3);
             Imgproc.circle(mRgba, center2, 20, FACE_RECT_COLOR, 10);
             Log.i(TAG, "Center" + center2);
             if (xCenter2 >= 400 && xCenter2 <= 500) {
