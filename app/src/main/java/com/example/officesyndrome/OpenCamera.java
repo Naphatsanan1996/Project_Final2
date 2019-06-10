@@ -161,7 +161,7 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
                             Log.i(TAG, "Loaded cascade classifier from " + mCascadeFile3.getAbsolutePath());
                         }
                         cascadeFileDir3.delete();
-                        
+
                     } catch (IOException e) {
                         e.printStackTrace();
                         Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
