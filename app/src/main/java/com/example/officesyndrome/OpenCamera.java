@@ -43,6 +43,7 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
     private static final String TAG = "OpenCV";
     private static final Scalar FACE_RECT_COLOR = new Scalar(0, 255, 0, 255);  //rgb color. green.
     private static Scalar HAND_RECT_COLOR = new Scalar(255, 0, 0, 255);  //rgb color. green.
+    private static Scalar ORANGE = new Scalar(255, 165, 0);
 
     public static final int JAVA_DETECTOR = 0;
 
@@ -55,10 +56,11 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
     private Boolean Findface = false;
     private File mCascadeFile;
     private File mCascadeFile2;
+    private File mCascadeFile3;
 
     private CascadeClassifier mJavaDetector;
-
     private CascadeClassifier mJavaDetector2;
+    private CascadeClassifier mJavaDetector3;
 
     private String[] mDetectorName;
     private float mRelativeFaceSize = 0.2f;
@@ -68,12 +70,19 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
     private float mRelativeHandSize = 0.2f;
     private int mAbsoluteHandSize = 0;
 
+    private String[] mDetectorNameBody;
+    private float mRelativeBodySize = 0.2f;
+    private int mAbsoluteBodySize = 0;
+
     private CameraBridgeViewBase mOpenCvCameraView;
     double xCenter = -1;
     double yCenter = -1;
 
     double xCenter2 = -1;
     double yCenter2 = -1;
+
+    double xCenter3 = -1;
+    double yCenter3 = -1;
 
     private Button BtnStart;
 
@@ -100,9 +109,9 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
                         is.close();
                         os.close();
 
-                        InputStream ish = getResources().openRawResource(R.raw.openhand_haar);
+                        InputStream ish = getResources().openRawResource(R.raw.handcascade);
                         File cascadeDir2 = getDir("cascade", Context.MODE_PRIVATE);
-                        mCascadeFile2 = new File(cascadeDir2, "openhand_haar.xml");
+                        mCascadeFile2 = new File(cascadeDir2, "handcascade.xml");
                         FileOutputStream os2 = new FileOutputStream(mCascadeFile2);
                         byte[] buffer2 = new byte[4096];
                         int bytesRead2;
@@ -113,13 +122,26 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
                         ish.close();
                         os2.close();
 
+
+                        InputStream isb = getResources().openRawResource(R.raw.haarcascade_upperbody);
+                        File cascadeFileDir3 = getDir("cascade", Context.MODE_PRIVATE);
+                        mCascadeFile3 = new File(cascadeFileDir3, "haarcascade_upperbody.xml");
+                        FileOutputStream os3 = new FileOutputStream(mCascadeFile3);
+                        byte[] buffer3 = new byte[4096];
+                        int bytesRead3;
+
+                        while ((bytesRead3 = isb.read(buffer3)) != -1) {
+                            os3.write(buffer3, 0, bytesRead3);
+                        }
+                        isb.close();
+                        os3.close();
+
                         mJavaDetector = new CascadeClassifier(mCascadeFile.getAbsolutePath()); //class for object detection
                         if (mJavaDetector.empty()) {
                             Log.e(TAG, "Failed to load cascade classifier");
                             mJavaDetector = null;
                         } else
                             Log.i(TAG, "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
-
                         cascadeDir.delete();
 
                         mJavaDetector2 = new CascadeClassifier(mCascadeFile2.getAbsolutePath());
@@ -130,6 +152,16 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
                             Log.i(TAG, "Loaded cascade classifier from " + mCascadeFile2.getAbsolutePath());
                         }
                         cascadeDir2.delete();
+
+                        mJavaDetector3 = new CascadeClassifier(mCascadeFile3.getAbsolutePath());
+                        if (mJavaDetector3.empty()) {
+                            Log.e(TAG, "Failed to load cascade classifier");
+                            mJavaDetector3 = null;
+                        } else {
+                            Log.i(TAG, "Loaded cascade classifier from " + mCascadeFile3.getAbsolutePath());
+                        }
+                        cascadeFileDir3.delete();
+                        
                     } catch (IOException e) {
                         e.printStackTrace();
                         Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
@@ -265,7 +297,7 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
             xCenter2 = (handsArray[i].x + handsArray[i].width + handsArray[i].x) / 2;
             yCenter2 = (handsArray[i].y + handsArray[i].y + handsArray[i].height) / 2;
             Point center2 = new Point(xCenter2, yCenter2);
-            Imgproc.rectangle(mRgba,handsArray[i].tl(),handsArray[i].br(),HAND_RECT_COLOR,3);
+            Imgproc.rectangle(mRgba, handsArray[i].tl(), handsArray[i].br(), HAND_RECT_COLOR, 3);
             Imgproc.circle(mRgba, center2, 20, FACE_RECT_COLOR, 10);
             Log.i(TAG, "Center" + center2);
             if (xCenter2 >= 400 && xCenter2 <= 500) {
@@ -275,24 +307,33 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
         }
 
 
-// ตำแหน่งคร่าวๆ
-//        if (Findface == true) {
-//
-////          hand  right
-//            Imgproc.rectangle(mRgba, new Point(200, 100), new Point(300, 200), new Scalar(76, 255, 0), 3);
-////          elbow right
-//            Imgproc.rectangle(mRgba, new Point(200, 600), new Point(300, 500), new Scalar(76, 255, 0), 3);
-////          shoulder right
-//            Imgproc.rectangle(mRgba, new Point(400, 500), new Point(500, 400), new Scalar(76, 255, 0), 3);
-//
-////          hand   left
-//            Imgproc.rectangle(mRgba, new Point(1200, 100), new Point(1300, 200), new Scalar(76, 255, 0), 3);
-////          elbow left
-//            Imgproc.rectangle(mRgba, new Point(1200, 600), new Point(1300, 500), new Scalar(76, 255, 0), 3);
-////          shoulder left
-//            Imgproc.rectangle(mRgba, new Point(1000, 500), new Point(1100, 400), new Scalar(76, 255, 0), 3);
-//        }
+//Body
+        if (mAbsoluteBodySize == 0) {
+            int height3 = mGray.rows();
+            if (Math.round(height3 * mRelativeBodySize) > 0) {
+                mAbsoluteBodySize = Math.round(height3 * mRelativeBodySize);
+            }
+        }
+        MatOfRect body = new MatOfRect();
 
+        if (mJavaDetector3 != null) {
+            mJavaDetector3.detectMultiScale(mGray, body, 1.1, 2, 2, new Size(mAbsoluteBodySize, mAbsoluteBodySize), new Size());
+        } else {
+            Log.e(TAG, "Detect is null");
+        }
+        Rect[] bodyArray = body.toArray();
+        for (int i = 0; i < bodyArray.length; i++) {
+            xCenter3 = (bodyArray[i].x + bodyArray[i].width + bodyArray[i].x) / 2;
+            yCenter3 = (bodyArray[i].y + bodyArray[i].height + bodyArray[i].y) / 2;
+            Point center3 = new Point(xCenter3, yCenter3);
+            Imgproc.rectangle(mRgba, bodyArray[i].tl(), bodyArray[i].br(), ORANGE, 3);
+            Imgproc.circle(mRgba, center3, 20, ORANGE, 10);
+
+        }
+
+        Point pt1 = new Point(xCenter2, yCenter2);
+        Point pt2 = new Point(xCenter3, yCenter3);
+        Imgproc.line(mRgba, pt1, pt2, new Scalar(0, 255, 255), 3);
 
         return mRgba;
     }
