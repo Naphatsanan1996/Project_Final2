@@ -1,9 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".Settime">
+    android:layout_height="match_parent">
 
-</android.support.constraint.ConstraintLayout>
+    <Button
+        android:id="@+id/b_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="CANCEL" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="235dp"
+        android:layout_height="47dp"
+        android:layout_toRightOf="@id/b_cancel"
+        android:text="Notifications" />
+
+
+    <Button
+        android:id="@+id/b_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/textView"
+        android:layout_weight="1"
+        android:text="SAVE" />
+
+
+    <TimePicker
+        android:id="@+id/timePicker1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:timePickerMode="spinner"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/b_cancel"/>
+
+
+
+    <ListView
+        android:id="@+id/list_viwe"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/timePicker1"
+        android:choiceMode="multipleChoice"/>
+
+
+</RelativeLayout>
+
+
+
+
