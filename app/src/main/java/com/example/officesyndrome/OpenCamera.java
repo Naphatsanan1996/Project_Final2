@@ -307,33 +307,30 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
         }
 
 
-//Body
-        if (mAbsoluteBodySize == 0) {
-            int height3 = mGray.rows();
-            if (Math.round(height3 * mRelativeBodySize) > 0) {
-                mAbsoluteBodySize = Math.round(height3 * mRelativeBodySize);
-            }
-        }
-        MatOfRect body = new MatOfRect();
+////Body
+//        if (mAbsoluteBodySize == 0) {
+//            int height3 = mGray.rows();
+//            if (Math.round(height3 * mRelativeBodySize) > 0) {
+//                mAbsoluteBodySize = Math.round(height3 * mRelativeBodySize);
+//            }
+//        }
+//        MatOfRect body = new MatOfRect();
+//
+//        if (mJavaDetector3 != null) {
+//            mJavaDetector3.detectMultiScale(mGray, body, 1.1, 2, 2, new Size(mAbsoluteBodySize, mAbsoluteBodySize), new Size());
+//        } else {
+//            Log.e(TAG, "Detect is null");
+//        }
+//        Rect[] bodyArray = body.toArray();
+//        for (int i = 0; i < bodyArray.length; i++) {
+//            xCenter3 = (bodyArray[i].x + bodyArray[i].width + bodyArray[i].x) / 2;
+//            yCenter3 = (bodyArray[i].y + bodyArray[i].height + bodyArray[i].y) / 2;
+//            Point center3 = new Point(xCenter3, yCenter3);
+//            Imgproc.rectangle(mRgba, bodyArray[i].tl(), bodyArray[i].br(), ORANGE, 3);
+//            Imgproc.circle(mRgba, center3, 20, ORANGE, 10);
+//
+//        }
 
-        if (mJavaDetector3 != null) {
-            mJavaDetector3.detectMultiScale(mGray, body, 1.1, 2, 2, new Size(mAbsoluteBodySize, mAbsoluteBodySize), new Size());
-        } else {
-            Log.e(TAG, "Detect is null");
-        }
-        Rect[] bodyArray = body.toArray();
-        for (int i = 0; i < bodyArray.length; i++) {
-            xCenter3 = (bodyArray[i].x + bodyArray[i].width + bodyArray[i].x) / 2;
-            yCenter3 = (bodyArray[i].y + bodyArray[i].height + bodyArray[i].y) / 2;
-            Point center3 = new Point(xCenter3, yCenter3);
-            Imgproc.rectangle(mRgba, bodyArray[i].tl(), bodyArray[i].br(), ORANGE, 3);
-            Imgproc.circle(mRgba, center3, 20, ORANGE, 10);
-
-        }
-
-        Point pt1 = new Point(xCenter2, yCenter2);
-        Point pt2 = new Point(xCenter3, yCenter3);
-        Imgproc.line(mRgba, pt1, pt2, new Scalar(0, 255, 255), 3);
 
         return mRgba;
     }
