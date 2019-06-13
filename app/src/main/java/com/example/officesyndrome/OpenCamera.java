@@ -86,6 +86,8 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
 
     private Button BtnStart;
 
+    private Boolean findface = false;
+
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -262,9 +264,10 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
         if (mJavaDetector != null) {
             mJavaDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
                     new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
-
+            findface = true;
         } else {
             Log.e(TAG, "Detector is null!");
+            findface = false;
         }
 
         Rect[] facesArray = faces.toArray();
@@ -275,39 +278,57 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
             yCenter = (facesArray[i].y + facesArray[i].y + facesArray[i].height) / 2;
             Point center = new Point(xCenter, yCenter);
             Imgproc.circle(mRgba, center, 20, new Scalar(255, 0, 0, 255), 5);
+            Imgproc.putText(mRgba, "Face", new Point(facesArray[i].tl().x,facesArray[i].br().y), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(0,255,255),3);
 
         }
+
+
+ if (findface == true){
+
+     Imgproc.rectangle(mRgba,new Point(200,100) ,new Point(300,200) , FACE_RECT_COLOR, 3);
+     Imgproc.putText(mRgba, "puthandR", new Point(200,100), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(0,255,255),3);
+
+
+
+     if (mAbsoluteHandSize == 0) {
+         int height2 = mGray.rows();
+         if (Math.round(height2 * mRelativeHandSize) > 0) {
+             mAbsoluteHandSize = Math.round(height2 * mRelativeHandSize);
+         }
+     }
+     MatOfRect hands = new MatOfRect();
+
+     if (mJavaDetector2 != null) {
+         mJavaDetector2.detectMultiScale(mGray, hands, 1.1, 2, 2, new Size(mAbsoluteHandSize, mAbsoluteHandSize), new Size());
+     } else {
+         Log.e(TAG, "Detector is null!");
+     }
+     Rect[] handsArray = hands.toArray();
+     for (int i = 0; i < handsArray.length; i++) {
+         xCenter2 = (handsArray[i].x + handsArray[i].width + handsArray[i].x) / 2;
+         yCenter2 = (handsArray[i].y + handsArray[i].y + handsArray[i].height) / 2;
+         Point center2 = new Point(xCenter2, yCenter2);
+         Imgproc.rectangle(mRgba, handsArray[i].tl(), handsArray[i].br(), HAND_RECT_COLOR, 3);
+         Imgproc.circle(mRgba, center2, 20, FACE_RECT_COLOR, 10);
+         Log.i(TAG, "Center" + center2);
+         if (xCenter2 < xCenter ){
+             Imgproc.putText(mRgba, "Right", new Point(handsArray[i].tl().x,handsArray[i].br().y), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(0,255,255),3);
+         }
+         else {
+             Imgproc.putText(mRgba, "Left", new Point(handsArray[i].tl().x,handsArray[i].br().y), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(0,255,255),3);
+         }
+
+
+     }
+ }
+//else {
+//
+// }
 //Hands
 
-        if (mAbsoluteHandSize == 0) {
-            int height2 = mGray.rows();
-            if (Math.round(height2 * mRelativeHandSize) > 0) {
-                mAbsoluteHandSize = Math.round(height2 * mRelativeHandSize);
-            }
-        }
-        MatOfRect hands = new MatOfRect();
-
-        if (mJavaDetector2 != null) {
-            mJavaDetector2.detectMultiScale(mGray, hands, 1.1, 2, 2, new Size(mAbsoluteHandSize, mAbsoluteHandSize), new Size());
-        } else {
-            Log.e(TAG, "Detector is null!");
-        }
-        Rect[] handsArray = hands.toArray();
-        for (int i = 0; i < handsArray.length; i++) {
-            xCenter2 = (handsArray[i].x + handsArray[i].width + handsArray[i].x) / 2;
-            yCenter2 = (handsArray[i].y + handsArray[i].y + handsArray[i].height) / 2;
-            Point center2 = new Point(xCenter2, yCenter2);
-            Imgproc.rectangle(mRgba, handsArray[i].tl(), handsArray[i].br(), HAND_RECT_COLOR, 3);
-            Imgproc.circle(mRgba, center2, 20, FACE_RECT_COLOR, 10);
-            Log.i(TAG, "Center" + center2);
-            if (xCenter2 >= 400 && xCenter2 <= 500) {
-                Imgproc.circle(mRgba, center2, 20, HAND_RECT_COLOR, 10);
-            }
-
-        }
 
 
-////Body
+//////Body
 //        if (mAbsoluteBodySize == 0) {
 //            int height3 = mGray.rows();
 //            if (Math.round(height3 * mRelativeBodySize) > 0) {
@@ -328,9 +349,8 @@ public class OpenCamera extends Activity implements CameraBridgeViewBase.CvCamer
 //            Point center3 = new Point(xCenter3, yCenter3);
 //            Imgproc.rectangle(mRgba, bodyArray[i].tl(), bodyArray[i].br(), ORANGE, 3);
 //            Imgproc.circle(mRgba, center3, 20, ORANGE, 10);
-//
 //        }
-
+//
 
         return mRgba;
     }
