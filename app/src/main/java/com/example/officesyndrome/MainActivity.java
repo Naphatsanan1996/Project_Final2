@@ -44,6 +44,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+//        btnCamera.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(MainActivity.this, TakePicture.class);
+//                startActivity(intent);
+//            }
+//        });
+
         btnTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
